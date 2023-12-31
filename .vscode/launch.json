@@ -1,0 +1,26 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "debug_merge_lora",
+            "type": "python",
+            "request": "launch",
+            "program": "/workspace/projects/glm/merge_lora.py",
+            // "program": "python",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {"CUDA_VISIBLE_DEVICES":"0,1"},
+            "args": [
+                "--model_path",
+                "/workspace/huggingface/chatglm2-6b",
+                "--max_len",
+                "1560",    
+                "--mode",
+                "glm2"            
+            ]
+        }
+    ]
+}

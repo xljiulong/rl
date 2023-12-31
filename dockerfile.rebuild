@@ -1,0 +1,21 @@
+#使用的基础镜像，构建时本地没有的话会先下载
+# FROM couchbase/centos7-systemd
+FROM robotai-server-runnable:v1.0.0
+
+LABEL maintainer="zhangjl19@spdb.com.cn"
+
+WORKDIR /app
+
+RUN rm /app/* -rf
+
+#添加运行程序
+ADD . /app/
+
+#暴露的端口
+EXPOSE 8081
+
+#容器运行后执行的命令，设置镜像的时区为上海，然后运行程序
+
+# ENTRYPOINT ["java","-jar","/app.jar"]
+CMD ["sh", "/app/src/start.sh"]
+
