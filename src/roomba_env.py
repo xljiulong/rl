@@ -120,7 +120,7 @@ class GridWordEnv(gym.Env):
 
         self.state = None
         self.ends = [(0, 0), (4, 3)]
-        self.start = (0, 4)
+        self.start = (0, 2)
         self.types = [(2, 2, 1)]
         self.rewards = [(0, 0, 1), (4, 3, 5), (2, 2, -10)]
 
@@ -172,6 +172,7 @@ class GridWordEnv(gym.Env):
         done = self._is_end_state(new_x, new_y)
 
         info = {
+            'action': action,
             'x': new_x,
             'y': new_y,
             'grids': self.grids
@@ -294,11 +295,11 @@ if __name__ == '__main__':
         print(f'epis {e}')
         env.reset()
         while True:
-            print(f'step again')
             action = env.action_space.sample()
             # env.render()
             sleep(0.5)
-            _, _, done, _ = env.step(action)
+            _, _, done, info = env.step(action)
+            print(f'info:{info}')
             if done:
                 break
     env.close()
