@@ -44,9 +44,8 @@ class GridMatrix(object):
     def reset(self):
         self.grids = []
 
-        # TODO  confirm the x, y is right?
-        for x in range(self.n_width):
-            for y in range(self.n_height):
+        for y in range(self.n_height):
+            for x in range(self.n_width):
                 self.grids.append(Grid(x, y, self.default_type, self.default_reward))
 
     def get_grid(self, x, y=None) -> Grid:
