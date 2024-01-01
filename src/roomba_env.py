@@ -7,7 +7,7 @@ from gym import spaces
 from gym.utils import seeding
 from time import sleep
 import signal
-from gym.envs.classic_control import rendering
+
 
 class Grid(object):
     def __init__(self,
@@ -201,7 +201,7 @@ class GridWordEnv(gym.Env):
         return self.state
     
     def _is_end_state(self, x, y=None):
-        # xx, yy = -1, -1
+        xx, yy = -1, -1
         if y is not None:
             xx, yy == x, y
         elif isinstance(self, x, int):
@@ -217,6 +217,7 @@ class GridWordEnv(gym.Env):
         return False
     
     def render(self, mode='human', close=False):
+        from gym.envs.classic_control import rendering
         if close:
             if self.viewer is not None:
                 self.viewer.close()
@@ -277,7 +278,7 @@ class GridWordEnv(gym.Env):
         x, y  = self._state_to_xy(self.state)
         self.agent_trans.set_translation((x + 0.5) * u_size, (y + 0.5) * u_size)
         return self.viewer.render(return_rgb_array= mode == 'rgb_array')
-def CtrlCHandler(signum, env):
+def CtrlCHandler(signum, frame):
     env.close()
     print('User interrupt')
     sys.exit(0)
@@ -291,12 +292,14 @@ if __name__ == '__main__':
     signal.signal(signal.SIGINT, CtrlCHandler)
     episode_num = 100
     for e in range(episode_num):
+        print(f'epis {e}')
         env.reset()
         while True:
+            print(f'step again')
             action = env.action_space.sample()
-            env.render()
+            # env.render()
             sleep(0.5)
-            _, _, done, _ = env.step()
+            _, _, done, _ = env.step(action)
             if done:
                 break
     env.close()
