@@ -40,3 +40,8 @@ conda activate rl_gy
 
 # 取消环境
 conda deactivate
+
+
+# 增加 rending 渲染
+cp lib/rendering.py /home/zhangjl19/miniconda3/envs/rl_gy/lib/python3.8/site-packages/gym/envs/classic_control/
+在 classic_control的init 文件中增加一行 from gym.envs.classic_control import rendering
