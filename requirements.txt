@@ -1,2 +1,3 @@
 gym
 gym[all]
+pyglet==1.5.27

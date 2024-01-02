@@ -172,6 +172,7 @@ class GridWordEnv(gym.Env):
         done = self._is_end_state(new_x, new_y)
 
         info = {
+            'from:': f'x:{old_x},y:{old_y}',
             'action': action,
             'x': new_x,
             'y': new_y,
@@ -217,7 +218,7 @@ class GridWordEnv(gym.Env):
         return False
     
     def render(self, mode='human', close=False):
-        from gym.envs.classic_control import rendering
+        
         if close:
             if self.viewer is not None:
                 self.viewer.close()
@@ -229,43 +230,45 @@ class GridWordEnv(gym.Env):
         m = 2 #格子间的间隔
 
         if self.viewer is None:
+            from gym.envs.classic_control import rendering
             self.viewer = rendering.Viewer(self.screen_width, self.screen_height)
 
-            for x in range(self.n_height):
-                v = [ (x * u_size + m, y * u_size+ m), 
-                     ((x + 1) * u_size - m, y * u_size + m),
-                     ((x + 1) * u_size - m, (y + 1) * u_size - m),
-                     (x * u_size + m, (y + 1) * u_size - m)]
-                
-                rect = rendering.FilledPolygon(v)
-                r = self.grids.get_reward(x, y) / 10
-                if r < 0:
-                    rect.set_color(0.9 - r, 0.9 + r, 0.9 + r)
-                elif r > 0:
-                    rect.set_color(0.3, 0.5 + r, 0.3)
-                else:
-                    rect.set_color(0.9, 0.9, 0.9)
+            for x in range(self.n_width):
+                for y in range(self.n_height):
+                    v = [ (x * u_size + m, y * u_size+ m), 
+                        ((x + 1) * u_size - m, y * u_size + m),
+                        ((x + 1) * u_size - m, (y + 1) * u_size - m),
+                        (x * u_size + m, (y + 1) * u_size - m)]
+                    
+                    rect = rendering.FilledPolygon(v)
+                    r = self.grids.get_reward(x, y) / 10
+                    if r < 0:
+                        rect.set_color(0.9 - r, 0.9 + r, 0.9 + r)
+                    elif r > 0:
+                        rect.set_color(0.3, 0.5 + r, 0.3)
+                    else:
+                        rect.set_color(0.9, 0.9, 0.9)
 
-                self.viewer.add_geom(rect)
+                    self.viewer.add_geom(rect)
 
-                # 边框
-                v_outline = [(x * u_size + m, y * u_size + m),
-                             ((x + 1) * u_size - m, y * u_size + m),
-                             ((x + 1) * u_size - m, (y + 1) * u_size - m),
-                             (x * u_size + m, (y + 1) * u_size - m)]
-                outline = rendering.make_polygon(v_outline, False)
-                outline.set_linewidth(3)
+                    # 边框
+                    v_outline = [(x * u_size + m, y * u_size + m),
+                                ((x + 1) * u_size - m, y * u_size + m),
+                                ((x + 1) * u_size - m, (y + 1) * u_size - m),
+                                (x * u_size + m, (y + 1) * u_size - m)]
+                    outline = rendering.make_polygon(v_outline, False)
+                    outline.set_linewidth(3)
 
-                if self._is_end_state(x, y):
-                    outline.set_color(0.9, 0.9, 0)
-                    self.viewer.add_geom(outline)
-                if self.start[0] == x and self.start[1] == y:
-                    outline.set_color(0.5, 0.5, 0.8)
-                    self.viewer.add_geom(outline)
-                if self.grids.get_type(x, y) == 1:
-                    self.set_color(0.3, 0.3, 0.3)
-                else:
-                    pass
+                    if self._is_end_state(x, y):
+                        outline.set_color(0.9, 0.9, 0)
+                        self.viewer.add_geom(outline)
+                    if self.start[0] == x and self.start[1] == y:
+                        outline.set_color(0.5, 0.5, 0.8)
+                        self.viewer.add_geom(outline)
+                    if self.grids.get_type(x, y) == 1:
+                        self.set_color(0.3, 0.3, 0.3)
+                    else:
+                        pass
 
             # 绘制geti
             self.agent = rendering.make_circle(u_size / 4, 30, True)
@@ -278,6 +281,7 @@ class GridWordEnv(gym.Env):
         x, y  = self._state_to_xy(self.state)
         self.agent_trans.set_translation((x + 0.5) * u_size, (y + 0.5) * u_size)
         return self.viewer.render(return_rgb_array= mode == 'rgb_array')
+    
 def CtrlCHandler(signum, frame):
     env.close()
     print('User interrupt')
@@ -296,7 +300,7 @@ if __name__ == '__main__':
         env.reset()
         while True:
             action = env.action_space.sample()
-            # env.render()
+            env.render()
             sleep(0.5)
             _, _, done, info = env.step(action)
             print(f'info:{info}')
