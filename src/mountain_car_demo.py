@@ -6,8 +6,8 @@ from matplotlib import animation
 import gym
 
 # env = gym.make('MountainCar-v0',  render_mode='human')
-env = gym.make('MountainCar-v0', render_mode="rgb_array")
-env = gym.make('MountainCar-v0')
+# env = gym.make('MountainCar-v0', render_mode="rgb_array")
+env = gym.make('MountainCar-v0',  render_mode="human")
 for episode in range(0, 10):
     env.reset()
     print(f'Episode finished after {episode} timesteps')
