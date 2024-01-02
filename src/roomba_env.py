@@ -174,8 +174,7 @@ class GridWordEnv(gym.Env):
         info = {
             'from:': f'x:{old_x},y:{old_y}',
             'action': action,
-            'x': new_x,
-            'y': new_y,
+            'dst': f'x:{new_x},y:{new_y}',
             'grids': self.grids
             }
         return self.state, self.reward, done, info
