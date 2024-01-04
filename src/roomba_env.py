@@ -1,4 +1,4 @@
-#encoding = utf-8
+# encoding = utf-8
 import sys
 import os
 
@@ -7,7 +7,7 @@ from gym import spaces
 from gym.utils import seeding
 from time import sleep
 import signal
-
+from gym.envs.classic_control import rendering
 
 class Grid(object):
     def __init__(self,
@@ -53,7 +53,7 @@ class GridMatrix(object):
         if isinstance(x, int):
             xx, yy = x, y
         elif isinstance(x, tuple):
-            xx, yy == x[0], y[0]
+            xx, yy = x[0], y[0]
 
         assert(0 <= xx < self.n_width and 0 <= yy < self.n_height)
 
@@ -66,14 +66,14 @@ class GridMatrix(object):
         if grid is not None:
             grid.enter_reward = reward
         else:
-            raise(f'grid is not exists ({x}, {y})')
+            raise f'grid is not exists ({x}, {y})'
     
     def set_type(self, x, y, grid_type):
         grid = self.get_grid(x, y)
         if grid is not None:
             grid.grid_type = grid_type
         else:
-            raise(f'grid is not exists ({x}, {y})')
+            raise f'grid is not exists ({x}, {y})'
         
     def  get_reward(self, x, y):
         grid = self.get_grid(x, y)
@@ -116,7 +116,7 @@ class GridWordEnv(gym.Env):
         self.reward = 0 # fo rending
         self.action = None
         self.action_space = spaces.Discrete(4)
-        self.observation_space =spaces.Discrete(self.n_height * self.n_width)
+        self.observation_space = spaces.Discrete(self.n_height * self.n_width)
 
         self.state = None
         self.ends = [(0, 0), (4, 3)]
@@ -169,6 +169,7 @@ class GridWordEnv(gym.Env):
             new_x, new_y = old_x, old_y
 
         self.reward = self.grids.get_reward(new_x, new_y)
+        self.state = self._xy_to_state((new_x, new_y))
         done = self._is_end_state(new_x, new_y)
 
         info = {
@@ -189,8 +190,8 @@ class GridWordEnv(gym.Env):
             assert (isinstance(y, int)), 'incomplete position info'
             return x + self.n_width * y
         elif isinstance(x, tuple):
-            return x[0] +self.n_width * x[1]
-        return  -1
+            return x[0] + self.n_width * x[1]
+        return -1
     
     def refresh_setting(self):
         for x, y, r in self.rewards:
@@ -203,8 +204,8 @@ class GridWordEnv(gym.Env):
     def _is_end_state(self, x, y=None):
         xx, yy = -1, -1
         if y is not None:
-            xx, yy == x, y
-        elif isinstance(self, x, int):
+            xx, yy = x, y
+        elif isinstance(x, int):
             xx, yy = self._state_to_xy(x)
         else:
             assert(isinstance(x, tuple)), '坐标数据不完整'
@@ -229,7 +230,6 @@ class GridWordEnv(gym.Env):
         m = 2 #格子间的间隔
 
         if self.viewer is None:
-            from gym.envs.classic_control import rendering
             self.viewer = rendering.Viewer(self.screen_width, self.screen_height)
 
             for x in range(self.n_width):
@@ -265,26 +265,27 @@ class GridWordEnv(gym.Env):
                         outline.set_color(0.5, 0.5, 0.8)
                         self.viewer.add_geom(outline)
                     if self.grids.get_type(x, y) == 1:
-                        self.set_color(0.3, 0.3, 0.3)
+                        rect.set_color(0.3, 0.3, 0.3)
                     else:
                         pass
 
-            # 绘制geti
+            # 绘制个体
             self.agent = rendering.make_circle(u_size / 4, 30, True)
             self.agent.set_color(1.0, 1.0, 0.0)
             self.viewer.add_geom(self.agent)
             self.agent_trans = rendering.Transform()
             self.agent.add_attr(self.agent_trans)
 
-
         x, y  = self._state_to_xy(self.state)
         self.agent_trans.set_translation((x + 0.5) * u_size, (y + 0.5) * u_size)
         return self.viewer.render(return_rgb_array= mode == 'rgb_array')
-    
+
+
 def CtrlCHandler(signum, frame):
     env.close()
     print('User interrupt')
     sys.exit(0)
+
 
 if __name__ == '__main__':
     env = GridWordEnv()
