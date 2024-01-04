@@ -259,7 +259,7 @@ class GridWordEnv(gym.Env):
                     outline.set_linewidth(3)
 
                     if self._is_end_state(x, y):
-                        outline.set_color(0.9, 0.9, 0)
+                        outline.set_color(0.9, 0.9, 0) # 金黄色边框
                         self.viewer.add_geom(outline)
                     if self.start[0] == x and self.start[1] == y:
                         outline.set_color(0.5, 0.5, 0.8)
