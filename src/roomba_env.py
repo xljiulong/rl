@@ -176,7 +176,8 @@ class GridWordEnv(gym.Env):
             'from:': f'x:{old_x},y:{old_y}',
             'action': action,
             'dst': f'x:{new_x},y:{new_y}',
-            'grids': self.grids
+            'dst_reward': f'{self.grids.get_type(new_x, new_y)}',
+            # 'grids': self.grids
             }
         return self.state, self.reward, done, info
     
@@ -301,7 +302,7 @@ if __name__ == '__main__':
         while True:
             action = env.action_space.sample()
             env.render()
-            sleep(0.5)
+            sleep(2)
             _, _, done, info = env.step(action)
             print(f'info:{info}')
             if done:
