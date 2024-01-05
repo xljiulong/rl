@@ -176,7 +176,7 @@ class GridWordEnv(gym.Env):
             'from:': f'x:{old_x},y:{old_y}',
             'action': action,
             'dst': f'x:{new_x},y:{new_y}',
-            'dst_reward': f'{self.grids.get_type(new_x, new_y)}',
+            'dst_reward': f'{self.grids.get_reward(new_x, new_y)}',
             # 'grids': self.grids
             }
         return self.state, self.reward, done, info
@@ -197,6 +197,9 @@ class GridWordEnv(gym.Env):
     def refresh_setting(self):
         for x, y, r in self.rewards:
             self.grids.set_reward(x, y, r)
+
+        for x, y, t in self.types:
+            self.grids.set_type(x, y, t)
 
     def reset(self):
         self.state = self._xy_to_state(self.start)
@@ -279,6 +282,9 @@ class GridWordEnv(gym.Env):
 
         x, y  = self._state_to_xy(self.state)
         self.agent_trans.set_translation((x + 0.5) * u_size, (y + 0.5) * u_size)
+        # for i in range(0, self.n_width):
+        #     for j in range(0, self.n_height):
+        #         print(f'{i}:{j}:{self.grids.get_type(i, j)}')
         return self.viewer.render(return_rgb_array= mode == 'rgb_array')
 
 
@@ -302,7 +308,7 @@ if __name__ == '__main__':
         while True:
             action = env.action_space.sample()
             env.render()
-            sleep(2)
+            sleep(0.5)
             _, _, done, info = env.step(action)
             print(f'info:{info}')
             if done:
