@@ -48,8 +48,13 @@ class GridMatrix(object):
                 self.grids.append(Grid(x, y, self.default_type, self.default_reward))
 
     def get_grid(self, x, y=None) -> Grid:
+        '''
+        支持 输入 stat_index,y 为None
+        '''
         xx, yy = None, None
         if isinstance(x, int):
+            if None == y:
+                y = 0
             xx, yy = x, y
         elif isinstance(x, tuple):
             xx, yy = x[0], y[0]
