@@ -119,7 +119,7 @@ def policy_eval(theta = 0.0001):
 
         print(f'k={iter}')
         # print(f'current V is:')
-        # print(np.round(value, decimals=3))
+        print(np.round(value, decimals=3))
         print(f'delta is {delta}')
         if delta < theta:
             break

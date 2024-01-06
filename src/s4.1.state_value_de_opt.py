@@ -83,12 +83,17 @@ class StateValueSimulate(GridWordEnv):
     def eval_policy(self, theta = 0.001, eval_round=100):
         V = np.zeros(self.n_width * self.n_height)
         gamma = 0.8
-
+        t_sque = [[n * self.n_width + e for e in range(0, self.n_width)] for n in range(self.n_height - 1, -1, -1)]
+        sque = []
+        for lt in t_sque:
+            sque.extend(lt)
+            
         for iter in range(0, eval_round):
             k = -1
             delta = 0
             for state in range(self.n_width * self.n_height):
-                v = V[state]
+                # v = V[state]
+                v = 0
                 if self.grids.get_type(state) == 1:
                     print(f'state {state} will not get evaled')
                     continue

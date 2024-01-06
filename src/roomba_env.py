@@ -126,7 +126,7 @@ class GridWordEnv(gym.Env):
         self.ends = [(0, 0), (4, 3)]
         self.start = (0, 2)
         self.types = [(2, 2, 1)]
-        self.rewards = [(0, 0, 1), (4, 3, 5), (2, 2, -10)]
+        self.rewards = [(0, 0, 1), (4, 3, 3), (2, 2, -10)]
 
         self.refresh_setting()
         self.viewer = None
