@@ -105,16 +105,17 @@ class StateValueSimulate(GridWordEnv):
                     reward = self.get_reward(nxt_sate)
 
                     if self.grids.get_type(nxt_sate) == 1:
-                        V[state] += self.pi[state][action] * (reward + gamma * V[state])
+                        v += self.pi[state][action] * (reward + gamma * V[state])
                         pass
                     else:
-                        V[state] += self.pi[state][action] * (reward + gamma * V[nxt_sate])
+                        v += self.pi[state][action] * (reward + gamma * V[nxt_sate])
                     
-            delta = max(delta, np.abs(v - V[state]))
+                delta = max(delta, np.abs(v - V[state]))
+                V[state] = v
             print(f'iter {iter} delta is {delta}')
-            value = np.array(V).reshape(self.n_width, self.n_height)
-            print(f'value is::')
-            self.human_view(V)
+            # value = np.array(V).reshape(self.n_width, self.n_height)
+            # print(f'value is::')
+            # self.human_view(V)
             
 
         if delta <= theta:
