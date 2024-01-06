@@ -7,7 +7,6 @@ from gym import spaces
 from gym.utils import seeding
 from time import sleep
 import signal
-from gym.envs.classic_control import rendering
 
 class Grid(object):
     def __init__(self,
@@ -222,7 +221,7 @@ class GridWordEnv(gym.Env):
         return False
     
     def render(self, mode='human', close=False):
-        
+        from gym.envs.classic_control import rendering
         if close:
             if self.viewer is not None:
                 self.viewer.close()
