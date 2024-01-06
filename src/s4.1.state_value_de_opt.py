@@ -80,7 +80,7 @@ class StateValueSimulate(GridWordEnv):
                 successor_num = len(self.get_successors(s))
                 self.pi[s][a] = 1.0/successor_num
 
-    def eval_policy(self, theta = 0.0001, eval_round=100):
+    def eval_policy(self, theta = 0.0001, eval_round=1000):
         V = np.zeros(self.n_width * self.n_height)
         gamma = 0.8
 
@@ -90,11 +90,15 @@ class StateValueSimulate(GridWordEnv):
             for state in range(self.n_width * self.n_height):
                 v = V[state]
                 if self.grids.get_type(state) == 1:
+                    print(f'state {state} will not get evaled')
                     continue
 
                 # 迭代
                 for action in range(0, self.action_len):
                     nxt_sate = self.step_from_state(state, action)
+                    if nxt_sate == state:
+                        continue
+
                     reward = self.get_reward(nxt_sate)
 
                     if self.grids.get_type(nxt_sate) == 1:
@@ -103,11 +107,15 @@ class StateValueSimulate(GridWordEnv):
                     else:
                         V[state] += self.pi[state][action] * (reward + gamma * V[nxt_sate])
                     
-                delta = max(delta, np.abs(v - V[state]))
-                print(f'iter {iter} delta is {delta}')
+            delta = max(delta, np.abs(v - V[state]))
+            print(f'iter {iter} delta is {delta}')
 
-                if delta <= theta:
-                    print(f'delta is good enough {delta}')
-                    exit(0)
+        if delta <= theta:
+            print(f'delta is good enough {delta}')
+            exit(0)
 
 
+if __name__ == '__main__':
+    ss = StateValueSimulate()
+    ss.init_policy()
+    ss.eval_policy()

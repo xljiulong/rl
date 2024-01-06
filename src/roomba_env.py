@@ -59,7 +59,7 @@ class GridMatrix(object):
         elif isinstance(x, tuple):
             xx, yy = x[0], y[0]
 
-        assert(0 <= xx < self.n_width and 0 <= yy < self.n_height)
+        # assert(0 <= xx < self.n_width and 0 <= yy < self.n_height)
 
         index = yy * self.n_width + xx
 
@@ -79,13 +79,13 @@ class GridMatrix(object):
         else:
             raise f'grid is not exists ({x}, {y})'
         
-    def  get_reward(self, x, y):
+    def  get_reward(self, x, y=None):
         grid = self.get_grid(x, y)
         if grid is None:
             return None
         return grid.enter_reward
     
-    def get_type(self, x, y):
+    def get_type(self, x, y=None):
         grid = self.get_grid(x, y)
         if grid is None:
             return None
