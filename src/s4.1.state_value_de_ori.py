@@ -77,6 +77,14 @@ def init_policy():
             policy[s][new_action] = 1/len(getsuccessor(s))
 
 
+def human_view(vec):
+    t_sque = [[n * word_w + e for e in range(0, word_w)] for n in range(word_h - 1, -1, -1)]
+    for line_lst in t_sque:
+        line_lst = [np.round(vec[item], decimals=3) for item in line_lst]
+        line = ' '.join(list(map(str, line_lst)))
+        print(line)
+
+
 def policy_eval(theta = 0.0001):
     V = np.zeros(length)
 
@@ -101,19 +109,21 @@ def policy_eval(theta = 0.0001):
                     v += policy[s][new_action] * (rewards + gamma * V[s])
                 else:
                     v += policy[s][new_action] * (rewards + gamma * V[next_state])
-                print(f'v={v}')
+                # print(f'v={v}')
 
             delta = max(delta, np.abs(v - V[s]))
             V[s] = v
+        # human_view(V)
         value = np.array(V).reshape(word_h, word_w)
         iter += 1
 
         print(f'k={iter}')
         print(f'current V is:')
         print(np.round(value, decimals=3))
+        print(f'delta is {delta}')
         if delta < theta:
             break
 
-        return V
-    init_policy()
-    value = policy_eval()
+    return V
+init_policy()
+value = policy_eval()
