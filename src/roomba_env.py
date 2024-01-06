@@ -138,22 +138,22 @@ class GridWordEnv(gym.Env):
         old_x, old_y = self._state_to_xy(self.state)
         new_x, new_y = old_x, old_y
 
-        if action == 0:
+        if action == 2:
             new_x -= 1
-        elif action == 1:
-            new_x += 1
-        elif action == 2:
-            new_y += 1
         elif action == 3:
+            new_x += 1
+        elif action == 0:
+            new_y += 1
+        elif action == 1:
             new_y -= 1
-        elif action == 4:
-            new_x, new_y = new_x -1, new_y - 1
-        elif action == 5:
-            new_x, new_y = new_x +1, new_y - 1
-        elif action == 6:
-            new_x, new_y = new_x -1, new_y +1
-        elif action == 7:
-            new_x, new_y = new_x +1, new_y + 1
+        # elif action == 4:
+        #     new_x, new_y = new_x -1, new_y - 1
+        # elif action == 5:
+        #     new_x, new_y = new_x +1, new_y - 1
+        # elif action == 6:
+        #     new_x, new_y = new_x -1, new_y +1
+        # elif action == 7:
+        #     new_x, new_y = new_x +1, new_y + 1
 
         if new_x < 0:
             new_x = 0
