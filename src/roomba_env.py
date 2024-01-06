@@ -306,9 +306,9 @@ if __name__ == '__main__':
         env.reset()
         while True:
             action = env.action_space.sample()
-            env.render()
             sleep(0.5)
             _, _, done, info = env.step(action)
+            # env.render()
             print(f'info:{info}')
             if done:
                 break
