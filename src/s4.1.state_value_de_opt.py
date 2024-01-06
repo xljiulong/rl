@@ -123,9 +123,9 @@ class StateValueSimulate(GridWordEnv):
             # self.human_view(V)
             
 
-        if delta <= theta:
-            print(f'delta is good enough {delta}')
-            exit(0)
+            if delta <= theta:
+                print(f'delta is good enough {delta}')
+                exit(0)
 
     def human_view(self, vec):
         t_sque = [[n * self.n_width + e for e in range(0, self.n_width)] for n in range(self.n_height - 1, -1, -1)]
