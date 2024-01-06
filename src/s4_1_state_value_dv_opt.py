@@ -2,7 +2,7 @@ import numpy as np
 
 from roomba_env import GridWordEnv
 
-class StateValueSimulate(GridWordEnv):
+class StateValueDVSimulate(GridWordEnv):
     def __init__(self, n_width: int = 5, 
                  n_height: int = 5, 
                  u_size=40, 
@@ -135,6 +135,6 @@ class StateValueSimulate(GridWordEnv):
             print(line)
 
 if __name__ == '__main__':
-    ss = StateValueSimulate()
+    ss = StateValueDVSimulate()
     ss.init_policy()
     ss.eval_policy()
