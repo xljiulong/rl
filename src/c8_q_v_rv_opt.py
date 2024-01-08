@@ -1,8 +1,9 @@
 import numpy as np
 import pandas as pd
 from roomba_env import GridWordEnv
+from s4_2_state_value_rv_opt import StateValueRVSimulate
 
-class QValueRVSimulate(GridWordEnv):
+class QValueRVSimulate(StateValueRVSimulate):
     def __init__(self, n_width: int = 5, 
                  n_height: int = 5, 
                  u_size=40, 
@@ -10,75 +11,8 @@ class QValueRVSimulate(GridWordEnv):
                  default_type=0,
                  action_len = 4) -> None:
         
-        super().__init__(n_width, n_height, u_size, 
-                         default_reward, default_type)
-        
-        self.action_len = action_len
-        self.pi = np.zeros([self.n_width * self.n_height, self.action_len])
-
-
-    def get_reward(self, s_index: int):
-        return self.grids.get_reward(s_index)
-    
-    def step(self, action: int):
-        state, reward, done, info = super().step(action)
-        return state
-
-
-    def step_from_state(self, c_state:int, action: int, skip_type=False):
-        assert self.action_space.contains(action), f'{action} ({type(action)} invalid)'
-        old_x, old_y = self._state_to_xy(c_state)
-        new_x, new_y = old_x, old_y
-
-        if action == 2:
-            new_x -= 1
-        elif action == 3:
-            new_x += 1
-        elif action == 0:
-            new_y += 1
-        elif action == 1:
-            new_y -= 1
-
-        if new_x < 0:
-            new_x = 0
-        if new_y < 0:
-            new_y = 0
-        if new_x >= self.n_width:
-            new_x = self.n_width - 1
-        if new_y >= self.n_height:
-            new_y = self.n_height - 1
-
-        if not skip_type:
-            if self.grids.get_type(new_x, new_y) == 1:
-                new_x, new_y = old_x, old_y
-
-        state = self._xy_to_state((new_x, new_y))
-       
-        return state
-
-
-    def get_successors(self, c_state: int):
-        successors = []
-        # TODO 验证获取全集 
-        # self.action_space
-        for a in range(0, self.action_len): # 可以验证下 action space 如何取全集
-            nxt_state = self.step_from_state(c_state=c_state, action=a, skip_type=True)
-            if c_state == nxt_state:
-                continue
-            successors.append(nxt_state)
-
-        return successors
-            
-        
-    def init_policy(self):
-        # pi = [[] for s in range(self.n_height * self.n_width)]
-
-        for s in range(self.n_width * self.n_height):
-            for a in range(self.action_len):
-                if s == self.step_from_state(s, a, skip_type=True):
-                    continue
-                successor_num = len(self.get_successors(s))
-                self.pi[s][a] = 1.0/successor_num
+       super().__init__(n_width, n_height, u_size, 
+                         default_reward, default_type)            
 
     def sumQ_nxt_state(self, s: int,  Q:pd.DataFrame):
         sum = 0
