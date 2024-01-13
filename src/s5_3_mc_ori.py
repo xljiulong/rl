@@ -1,28 +1,44 @@
 import numpy as np
+from collections import defaultdict
+from  roomba_env import GridWordEnv
 
-from s4_1_state_value_dv_opt import StateValueDVSimulate
-
-class StateValueRVSimulate(StateValueDVSimulate):
+class FirstVisitGreedyMC(GridWordEnv):
     def __init__(self, n_width: int = 5, 
                  n_height: int = 5, 
                  u_size=40, 
                  default_reward: float = 0, 
                  default_type=0,
-                 action_len = 4) -> None:
+                 action_len = 4, params = {}) -> None:
         
         super().__init__(n_width, n_height, u_size, 
                          default_reward, default_type)
+        self.Q = {}
+        self.action_len = action_len
+        self.init_valid_actions()
+
+    def init_valid_actions(self, s: int):
+
+        self.valid_actions = {}
+
+        for s in range(0, len(self.observation_space)):
+            self.valid_actions[s] = []
+            for a in range(0, self.action_len):
+                nxs = self.step_from_state(s, a, True)
+                if nxs != s:
+                    self.valid_actions[s].append(a)
             
         
-    def init_policy(self):
+    def get_policy(self, action_lst, state, epsilon):
         # pi = [[] for s in range(self.n_height * self.n_width)]
 
-        for s in range(self.n_width * self.n_height):
-            for a in range(self.action_len):
-                if s == self.step_from_state(s, a, skip_type=True):
-                    continue
-                successor_num = len(self.get_successors(s))
-                self.pi[s][a] = 1.0/successor_num
+        A = np.zeros(self.action_len, dtype=float)
+        valid_nA = len(action_lst[state])
+        for action in action_lst[state]:
+            A[action] = epsilon / valid_nA
+        best_action = max(self.Q[state], key=self.Q[state].get)
+        A[best_action] += 1.0 - epsilon
+        return A
+
                 
     def get_ext_action(self, action):
         if action == 0:
@@ -40,63 +56,30 @@ class StateValueRVSimulate(StateValueDVSimulate):
         
         return -1
     
+    def _is_state_in_q(self, state):
+        return self.Q.get(state) is not None
+    
+    def _get_q_value(self, s, a):
+        return self.Q[s][a]
 
-    def eval_policy(self, theta = 0.001, eval_round=100):
-        V = np.zeros(self.n_width * self.n_height)
-        gamma = 0.8
-        t_sque = [[n * self.n_width + e for e in range(0, self.n_width)] for n in range(self.n_height - 1, -1, -1)]
-        sque = []
-        for lt in t_sque:
-            sque.extend(lt)
+    def _set_q_value(self, s, a, new_q):
+        self.Q[s][a] = new_q
+    
+    def init_value(self, s, randomized=False):
+        if not self._is_state_in_q(s):
+            self.Q[s] = {}
+            for a in self.valid_actions[s]:
+                self.Q[s][a] = np.random().random() / 10 if randomized else 0.0
             
-        for iter in range(0, eval_round):
-            k = -1
-            delta = 0
-            for state in range(self.n_width * self.n_height):
-                # v = V[state]
-                v = 0
-                if self.grids.get_type(state) == 1:
-                    print(f'state {state} will not get evaled')
-                    continue
+    def mc_control(self, gamma, max_episode_num):
+        returns_sum = defaultdict(float)
+        returns_count = defaultdict(float)
+        target_policy = self.get_policy
+        num_episode = 0
+        for state in range(len(self.observation_space)):
+            self.init_value(state, )
 
-                if self.grids.get_reward(state) > 0:
-                    continue
 
-                # 迭代
-                for action in range(0, self.action_len):
-                    cur_reward = self.get_reward(state)
-
-                    nxt_sate = self.step_from_state(state, action, skip_type=True)
-                    nxt_reward = self.get_reward(nxt_sate)
-
-                    ext_action = self.get_ext_action(action)
-                    ext_state = self.step_from_state(state, ext_action)
-                    ext_reward = self.get_reward(ext_state)
-
-                    if self.grids.get_type(nxt_sate) == 1:
-                        s2v =  V[state]
-                    else:
-                        s2v = V[nxt_sate]
-
-                    if self.grids.get_type(ext_state) == 1:
-                        s3v = V[state]
-                    else:
-                        s3v = V[nxt_sate]
-                        # v += self.pi[state][action] * (reward + gamma * V[state])
-                    v += self.pi[state][action] *( 0.8 * (nxt_reward + gamma * V[state]) + 0.15 * (cur_reward + gamma * s2v) + 0.05 * (ext_reward + gamma * s3v))
-
-                    
-                delta = max(delta, np.abs(v - V[state]))
-                V[state] = v
-            print(f'iter {iter} delta is {delta}')
-            # value = np.array(V).reshape(self.n_width, self.n_height)
-            # print(f'value is::')
-            # self.human_view(V)
-            
-
-            if delta <= theta:
-                print(f'delta is good enough {delta}')
-                exit(0)
 
     def human_view(self, vec):
         t_sque = [[n * self.n_width + e for e in range(0, self.n_width)] for n in range(self.n_height - 1, -1, -1)]
@@ -106,6 +89,7 @@ class StateValueRVSimulate(StateValueDVSimulate):
             print(line)
 
 if __name__ == '__main__':
-    ss = StateValueRVSimulate()
-    ss.init_policy()
-    ss.eval_policy()
+    # ss = StateValueRVSimulate()
+    # ss.init_policy()
+    # ss.eval_policy()
+    pass
