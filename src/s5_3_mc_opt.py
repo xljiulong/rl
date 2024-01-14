@@ -16,11 +16,11 @@ class FirstVisitGreedyMC(GridWordEnv):
         self.action_len = action_len
         self.init_valid_actions()
 
-    def init_valid_actions(self, s: int):
+    def init_valid_actions(self):
 
         self.valid_actions = {}
 
-        for s in range(0, len(self.observation_space)):
+        for s in range(0, self.observation_space.n):
             self.valid_actions[s] = []
             for a in range(0, self.action_len):
                 nxs = self.step_from_state(s, a, True)
@@ -76,25 +76,25 @@ class FirstVisitGreedyMC(GridWordEnv):
         returns_count = defaultdict(float)
         target_policy = self.get_policy
         num_episode = 0
-        for state in range(len(self.observation_space)):
-            self.init_value(state, )
+        for state in range(self.observation_space.n):
+            self.init_value(state)
 
-        print_states = [5, 10, 18, 20, 24]
-        for s in print_states:
-            if s in self.Q.keys():
-                Q_s = []
-                for a in self.Q[s].keys():
-                    Q_s.append(round(self.Q[s][a], 3))
+        # print_states = [5, 10, 18, 20, 24]
+        # for s in print_states:
+        #     if s in self.Q.keys():
+        #         Q_s = []
+        #         for a in self.Q[s].keys():
+        #             Q_s.append(round(self.Q[s][a], 3))
 
-                probs = self.get_policy(self.valid_actions, s, self.get_epsilon_by_epsiode(num_episode))
-                action = np.random.choice(np.arange(len(probs)), p = probs)
+        #         probs = self.get_policy(self.valid_actions, s, self.get_epsilon_by_epsiode(num_episode))
+        #         action = np.random.choice(np.arange(len(probs)), p = probs)
 
-                p = []
-                for a in range(len(probs)):
-                    p.append(round(probs[a], 3))
+        #         p = []
+        #         for a in range(len(probs)):
+        #             p.append(round(probs[a], 3))
                 
-                print(p)
-                print(action)
+        #         print(p)
+        #         print(action)
 
 
         while num_episode < max_episode_num:
@@ -128,7 +128,7 @@ class FirstVisitGreedyMC(GridWordEnv):
 
 
 
-    def get_epsilon_by_epsiode(epsiode): 
+    def get_epsilon_by_epsiode(self, epsiode): 
         epsilon_start = 0.5
         epsilon_final = 0
         epsilon_episodes = 20000
@@ -143,7 +143,7 @@ class FirstVisitGreedyMC(GridWordEnv):
             print(line)
 
 if __name__ == '__main__':
-    # ss = StateValueRVSimulate()
-    # ss.init_policy()
-    # ss.eval_policy()
-    pass
+    ss = FirstVisitGreedyMC()
+    gamma = 0.8
+    max_episode_num=20000
+    ss.mc_control(gamma, max_episode_num)

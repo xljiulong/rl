@@ -185,6 +185,37 @@ class GridWordEnv(gym.Env):
             }
         return self.state, self.reward, done, info
     
+    def step_from_state(self, c_state:int, action: int, skip_type=False):
+        assert self.action_space.contains(action), f'{action} ({type(action)} invalid)'
+        old_x, old_y = self._state_to_xy(c_state)
+        new_x, new_y = old_x, old_y
+
+        if action == 2:
+            new_x -= 1
+        elif action == 3:
+            new_x += 1
+        elif action == 0:
+            new_y += 1
+        elif action == 1:
+            new_y -= 1
+
+        if new_x < 0:
+            new_x = 0
+        if new_y < 0:
+            new_y = 0
+        if new_x >= self.n_width:
+            new_x = self.n_width - 1
+        if new_y >= self.n_height:
+            new_y = self.n_height - 1
+
+        if not skip_type:
+            if self.grids.get_type(new_x, new_y) == 1:
+                new_x, new_y = old_x, old_y
+
+        state = self._xy_to_state((new_x, new_y))
+       
+        return state
+    
     def _state_to_xy(self, s):
         x = s % self.n_width
         y = int((s - x) / self.n_width)
