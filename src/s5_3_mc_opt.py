@@ -35,8 +35,11 @@ class FirstVisitGreedyMC(GridWordEnv):
         valid_nA = len(action_lst[state])
         for action in action_lst[state]:
             A[action] = epsilon / valid_nA
-        best_action = max(self.Q[state], key=self.Q[state].get)
-        A[best_action] += 1.0 - epsilon
+        best_action_id = max(self.Q[state], key=self.Q[state].get)
+        best_actions_ids = [id for id in self.Q[state].keys() if self.Q[state][best_action_id] == self.Q[state][id]]
+        A = [A[id] + (1.0 - epsilon) if id in best_actions_ids else A[id]  for id in range(0, len(A)) ]
+        # A = [A[id] + (1.0 - epsilon) for id in range(0, len(A)) if id in best_actions_ids else A[id]]
+        # A[best_action] += 1.0 - epsilon
         return A
 
                 
