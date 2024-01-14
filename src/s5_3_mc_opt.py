@@ -38,6 +38,8 @@ class FirstVisitGreedyMC(GridWordEnv):
         best_action_id = max(self.Q[state], key=self.Q[state].get)
         best_actions_ids = [id for id in self.Q[state].keys() if self.Q[state][best_action_id] == self.Q[state][id]]
         A = [A[id] + (1.0 - epsilon) if id in best_actions_ids else A[id]  for id in range(0, len(A)) ]
+        a_sum = sum(A)
+        A = A / a_sum
         # A = [A[id] + (1.0 - epsilon) for id in range(0, len(A)) if id in best_actions_ids else A[id]]
         # A[best_action] += 1.0 - epsilon
         return A
@@ -82,24 +84,6 @@ class FirstVisitGreedyMC(GridWordEnv):
         for state in range(self.observation_space.n):
             self.init_value(state)
 
-        # print_states = [5, 10, 18, 20, 24]
-        # for s in print_states:
-        #     if s in self.Q.keys():
-        #         Q_s = []
-        #         for a in self.Q[s].keys():
-        #             Q_s.append(round(self.Q[s][a], 3))
-
-        #         probs = self.get_policy(self.valid_actions, s, self.get_epsilon_by_epsiode(num_episode))
-        #         action = np.random.choice(np.arange(len(probs)), p = probs)
-
-        #         p = []
-        #         for a in range(len(probs)):
-        #             p.append(round(probs[a], 3))
-                
-        #         print(p)
-        #         print(action)
-
-
         while num_episode < max_episode_num:
             episode = []
             state = self.reset()
@@ -118,15 +102,21 @@ class FirstVisitGreedyMC(GridWordEnv):
 
             first_occurence_idx = next(i for i, x in enumerate(episode) 
                                        if x[0] == state and x[1] == action)
-            for state, action in sa_in_episode:
+            
+            unique_episode = sorted(episode, key=episode.index)
+            G = 0
+            for state, action, reward in unique_episode:  # TO DO  CHECK
                 sa_pair = (state, action)
 
-                G = sum(x[2] * (gamma ** i) for 
-                        i, x in enumerate(episode[first_occurence_idx:]))
+                # G = sum(x[2] * (gamma ** i) for 
+                #         i, x in enumerate(episode[first_occurence_idx:])) # TO DO  CHECK
+                G = gamma * G + reward
 
                 returns_sum[sa_pair] += G
                 returns_count[sa_pair] += 1.0
-                self._set_q_value(state, action, returns_sum[sa_pair] / returns_count[sa_pair]) # TO DO check
+                qa_value = self.Q[state][action] + (1 / returns_count[sa_pair])*(G - self.Q[state][action])
+
+                self._set_q_value(state, action, qa_value) # TO DO check
         return self.Q
 
 
