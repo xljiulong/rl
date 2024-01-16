@@ -87,6 +87,7 @@ class FirstVisitGreedyMC(GridWordEnv):
         while num_episode < max_episode_num:
             episode = []
             state = self.reset()
+            delta = 0
 
             while True:
                 probs = self.get_policy(self.valid_actions, state, self.get_epsilon_by_epsiode(num_episode))
@@ -103,7 +104,8 @@ class FirstVisitGreedyMC(GridWordEnv):
             first_occurence_idx = next(i for i, x in enumerate(episode) 
                                        if x[0] == state and x[1] == action)
             
-            unique_episode = sorted(episode, key=episode.index)
+            # unique_episode = sorted(episode, key=episode.index)
+            unique_episode = list(reversed(episode))
             G = 0
             for state, action, reward in unique_episode:  # TO DO  CHECK
                 sa_pair = (state, action)
@@ -115,8 +117,10 @@ class FirstVisitGreedyMC(GridWordEnv):
                 returns_sum[sa_pair] += G
                 returns_count[sa_pair] += 1.0
                 qa_value = self.Q[state][action] + (1 / returns_count[sa_pair])*(G - self.Q[state][action])
-
+                oqa = self._get_q_value(state, action)
                 self._set_q_value(state, action, qa_value) # TO DO check
+                delta = max(delta, np.abs(qa_value - oqa))
+            print(f'iteration {num_episode} delta is {delta}')
         return self.Q
 
 
