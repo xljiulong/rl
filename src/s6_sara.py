@@ -43,23 +43,6 @@ class Sara(GridWordEnv):
         # A = [A[id] + (1.0 - epsilon) for id in range(0, len(A)) if id in best_actions_ids else A[id]]
         # A[best_action] += 1.0 - epsilon
         return A
-
-                
-    def get_ext_action(self, action):
-        if action == 0:
-            return 1
-        elif action == 1:
-            return 0
-        elif action == 2:
-            return 3
-        elif action == 3:
-            return 2
-        else:
-            action = -1
-
-        assert self.action_space.contains(action), f'{action} is out of space'
-        
-        return -1
     
     def _is_state_in_q(self, state):
         return self.Q.get(state) is not None
@@ -75,62 +58,44 @@ class Sara(GridWordEnv):
             self.Q[s] = {}
             for a in self.valid_actions[s]:
                 self.Q[s][a] = np.random().random() / 10 if randomized else 0.0
+                
+    def get_decrease_weight(self, weight, episode_index, max_episode_num):
+        rweight = ((float(episode_index) - float(max_episode_num)) / float(max_episode_num)) * max_episode_num
+        return rweight
             
-    def mc_control(self, gamma, max_episode_num):
-        returns_sum = defaultdict(float)
-        returns_count = defaultdict(float)
-        target_policy = self.get_policy
+    def sara(self, alpha, gamma, epsilon, max_episode_num):
+
         num_episode = 0
         for state in range(self.observation_space.n):
             self.init_value(state)
 
         while num_episode < max_episode_num:
-            episode = []
+            delta = 0.0
             state = self.reset()
-            delta = 0
-
+            alpha = self.get_decrease_weight(alpha, num_episode, max_episode_num)
+            epsilon = self.get_decrease_weight(epsilon, num_episode, max_episode_num)
+            
+            probs = self.get_policy(self.valid_actions, state, epsilon)
+            action = np.random.choice(np.arange(len(probs)), p = probs) 
+            
+            done = False
             while True:
-                probs = self.get_policy(self.valid_actions, state, self.get_epsilon_by_epsiode(num_episode))
-                action = np.random.choice(np.arange(len(probs)), p = probs)
+                # probs = self.get_policy(self.valid_actions, state, epsilon)
+                # action = np.random.choice(np.arange(len(probs)), p = probs) 
                 next_state, reward, done, _ = self.step(action)
-                episode.append((state, action, reward))
                 if done:
                     break
-                state = next_state
-
-            num_episode += 1
-            sa_in_episode = set([(x[0], x[1]) for x in episode])
-
-            first_occurence_idx = next(i for i, x in enumerate(episode) 
-                                       if x[0] == state and x[1] == action)
-            
-            # unique_episode = sorted(episode, key=episode.index)
-            unique_episode = list(reversed(episode))
-            G = 0
-            for state, action, reward in unique_episode:  # TO DO  CHECK
-                sa_pair = (state, action)
-
-                # G = sum(x[2] * (gamma ** i) for 
-                #         i, x in enumerate(episode[first_occurence_idx:])) # TO DO  CHECK
-                G = gamma * G + reward
-
-                returns_sum[sa_pair] += G
-                returns_count[sa_pair] += 1.0
-                qa_value = self.Q[state][action] + (1 / returns_count[sa_pair])*(G - self.Q[state][action])
+                next_probs = self.get_policy(self.valid_actions, next_state, epsilon)
+                next_action = np.random.choice(np.arange(len(probs)), p = next_probs) 
+                qa_value = self.Q[state][action] + alpha * (reward + gamma * self.Q[next_state][next_action] - self.Q[state][action])
+                # qa_value = self.Q[state][action] + (1 / returns_count[sa_pair])*(G - self.Q[state][action])
                 oqa = self._get_q_value(state, action)
                 self._set_q_value(state, action, qa_value) # TO DO check
                 delta = max(delta, np.abs(qa_value - oqa))
             print(f'iteration {num_episode} delta is {delta}')
+            
         return self.Q
 
-
-
-    def get_epsilon_by_epsiode(self, epsiode): 
-        epsilon_start = 0.5
-        epsilon_final = 0
-        epsilon_episodes = 20000
-        epsilon_by_epsiode =  epsilon_start - (epsilon_start - epsilon_final) * min(epsiode,  epsilon_episodes) / epsilon_episodes
-        return epsilon_by_epsiode
 
     def human_view(self, vec):
         t_sque = [[n * self.n_width + e for e in range(0, self.n_width)] for n in range(self.n_height - 1, -1, -1)]
@@ -140,7 +105,9 @@ class Sara(GridWordEnv):
             print(line)
 
 if __name__ == '__main__':
-    ss = FirstVisitGreedyMC()
+    ss = Sara()
+    alpha = 0.05
     gamma = 0.8
+    epsilon = 0.5
     max_episode_num=20000
-    ss.mc_control(gamma, max_episode_num)
+    ss.sara(alpha, gamma, epsilon, max_episode_num)
