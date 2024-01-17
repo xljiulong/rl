@@ -60,7 +60,7 @@ class Sara(GridWordEnv):
                 self.Q[s][a] = np.random().random() / 10 if randomized else 0.0
                 
     def get_decrease_weight(self, weight, episode_index, max_episode_num):
-        rweight = ((float(episode_index) - float(max_episode_num)) / float(max_episode_num)) * max_episode_num
+        rweight = ((float(max_episode_num) - float(episode_index)) / float(max_episode_num)) * weight
         return rweight
             
     def sara(self, alpha, gamma, epsilon, max_episode_num):
@@ -79,20 +79,25 @@ class Sara(GridWordEnv):
             action = np.random.choice(np.arange(len(probs)), p = probs) 
             
             done = False
-            while True:
+            steps = 0
+            while not done:
                 # probs = self.get_policy(self.valid_actions, state, epsilon)
                 # action = np.random.choice(np.arange(len(probs)), p = probs) 
                 next_state, reward, done, _ = self.step(action)
+                steps += 1
                 if done:
-                    break
+                    print(f'iteration {num_episode} steps {steps} done')
                 next_probs = self.get_policy(self.valid_actions, next_state, epsilon)
                 next_action = np.random.choice(np.arange(len(probs)), p = next_probs) 
                 qa_value = self.Q[state][action] + alpha * (reward + gamma * self.Q[next_state][next_action] - self.Q[state][action])
                 # qa_value = self.Q[state][action] + (1 / returns_count[sa_pair])*(G - self.Q[state][action])
                 oqa = self._get_q_value(state, action)
                 self._set_q_value(state, action, qa_value) # TO DO check
+                action = next_action
+                state = next_state
                 delta = max(delta, np.abs(qa_value - oqa))
             print(f'iteration {num_episode} delta is {delta}')
+            num_episode += 1
             
         return self.Q
 
