@@ -37,7 +37,7 @@ class GridMatrix(object):
         self.default_reward = default_reward
         self.default_type = default_type
         self.grids = None
-        self.len = n_width
+        self.len = n_width * n_height
         self.reset()
 
     def reset(self):
@@ -103,7 +103,8 @@ class GridWordEnv(gym.Env):
                  n_height: int = 5,
                  u_size = 40,
                  default_reward: float = 0,
-                 default_type = 0) -> None:
+                 default_type = 0,
+                 action_num = 4) -> None:
         self.n_width = n_width
         self.n_height = n_height
         self.default_reward = default_reward
@@ -119,7 +120,7 @@ class GridWordEnv(gym.Env):
         
         self.reward = 0 # fo rending
         self.action = None
-        self.action_space = spaces.Discrete(4)
+        self.action_space = spaces.Discrete(action_num)
         self.observation_space = spaces.Discrete(self.n_height * self.n_width)
 
         self.state = None
