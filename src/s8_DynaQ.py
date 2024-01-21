@@ -4,24 +4,21 @@ from collections import defaultdict
 from  roomba_env import GridWordEnv
 
 class DynaQ(GridWordEnv):
-    def __init__(self) -> None:
+    def __init__(self,
+                 n_width: int = 5,
+                 n_height: int = 5,
+                 u_size = 40,
+                 default_reward: float = 0,
+                 default_type = 0) -> None:
+        super().__init__(n_width, n_height, u_size, 
+                         default_reward, default_type)
         self.episode = 1
         self.Q = {}
         self.model = {}
         self.actions = [0, 1, 2, 3]
         self.position =self.start
-        self.valid_actions = {}
-        self.init_valid_actions()
-
-    def init_valid_actions(self):
-        for s in range(0, self.observation_space.n):
-            self.valid_actions[s] = []
-            for a in range(0, self.action_len):
-                nxs = self.step_from_state(s, a, True)
-                if nxs != s:
-                    self.valid_actions[s].append(a)
-
-    def make_model(self, pos, act, reward, next_state):
+        
+    def update_model(self, pos, act, reward, next_state):
         key = (pos, act)
         value = (reward, next_state)
         self.model[key] = value
@@ -89,13 +86,33 @@ class DynaQ(GridWordEnv):
                     break
                 self.update_q(state, act, next_state, reward)
                 
-    # def study(self, )
+    def study(self, n):
+        for i in range(300):
+            done = False
+            self.reset()
+            while(done == False):
+                state = self._state_to_xy(self.state)
+                action = self.get_random_action_from_state(state)
+                nxt_state, reward, done, info = self.step(action)
+                nxt_state = self._state_to_xy(nxt_state)
 
+                self.update_q(state, action, nxt_state, reward)
+                self.update_model(state, action, reward, nxt_state)
+                self.q_plan(n)
     
 if __name__ == '__main__':
-    ss = DynaQ()
-    alpha = 0.05
-    gamma = 0.8
-    epsilon = 0.5
-    max_episode_num=20000
-    ss.sara(alpha, gamma, epsilon, max_episode_num)
+    
+
+    n_width = 5
+    n_height = 5
+    default_reward = 0
+    da = DynaQ(n_width, n_height, default_reward=default_reward)
+
+    da.types = [(2, 2, 1)]
+    da.rewards = [(0, 0, 1), (4, 3, 1)]  # 奖赏值设定
+    da.start = (0, 4)
+    da.ends = [(0, 0), (4, 3)]
+    da.refresh_setting()
+    da.init_valid_actions()
+
+    da.study(5)
