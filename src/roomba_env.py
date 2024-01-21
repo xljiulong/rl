@@ -133,6 +133,17 @@ class GridWordEnv(gym.Env):
         self.viewer = None
         self.seed()
         self.reset()
+        self.valid_actions = {}
+        self.init_valid_actions()
+
+    def init_valid_actions(self):
+        for s in range(0, self.observation_space.n):
+            self.valid_actions[s] = []
+            for a in range(0, self.action_space.n):
+                nxs = self.step_from_state(s, a, True)
+                if nxs != s:
+                    self.valid_actions[s].append(a)
+
 
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
