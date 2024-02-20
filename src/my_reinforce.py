@@ -42,6 +42,7 @@ class REINFORCE:
 
         G = 0
         self.optimizer.zero_grad()
+        loss = 0
         for i in reversed(range(len(reward_list))):  # 从最后一步算起
             reward = reward_list[i]
             state = torch.tensor([state_list[i]],
@@ -49,8 +50,8 @@ class REINFORCE:
             action = torch.tensor([action_list[i]]).view(-1, 1).to(self.device)
             log_prob = torch.log(self.policy_net(state).gather(1, action))
             G = self.gamma * G + reward
-            loss = -log_prob * G  # 每一步的损失函数
-            loss.backward()  # 反向传播计算梯度
+            loss += -log_prob * G  # 每一步的损失函数
+        loss.backward()  # 反向传播计算梯度
         self.optimizer.step()  # 梯度下降
 
 learning_rate = 1e-3
