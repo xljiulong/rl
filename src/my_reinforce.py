@@ -51,6 +51,7 @@ class REINFORCE:
             log_prob = torch.log(self.policy_net(state).gather(1, action))
             G = self.gamma * G + reward
             loss += -log_prob * G  # 每一步的损失函数
+        # loss = loss / len(reward_list)
         loss.backward()  # 反向传播计算梯度
         self.optimizer.step()  # 梯度下降
 
