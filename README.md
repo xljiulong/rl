@@ -14,6 +14,8 @@ https://zhuanlan.zhihu.com/p/563053450
 > https://blog.51cto.com/u_14622170/5266593 # rending 导入错误
 > https://blog.csdn.net/jiebaoshayebuhui/category_12062442.html # 深度强化学习系列  
 > https://github.com/arrti/mcts # MCTS
+> https://rl.qiwihui.com/zh-cn/latest/#google_vignette # double q 解释 过估计
 
 
 ## Getting started
+
